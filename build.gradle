@@ -1,0 +1,91 @@
+plugins {
+    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id "me.modmuss50.mod-publish-plugin" version "0.8.4"
+}
+
+version = project.mod_version + "+" + stonecutter.current.version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    maven { url = "https://maven.parchmentmc.org" }
+    maven { url = "https://maven.terraformersmc.com/" }
+    maven { url = "https://maven.fzzyhmstrs.me/"}
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${stonecutter.current.project}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${property("parchment_version")}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}"
+    modImplementation "com.terraformersmc:modmenu:${property("modmenu_version")}"
+    modImplementation "me.fzzyhmstrs:fzzy_config:${property("fzzy_version")}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", stonecutter.current.version
+    inputs.property "loader_version", project.loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": stonecutter.current.version,
+                "loader_version": project.loader_version
+    }
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+publishMods {
+    file = remapJar.archiveFile
+    changelog = file(getRootDir().path + "/CHANGELOG.md").text
+    type = STABLE
+    modLoaders.add("fabric")
+    displayName = project.mod_version + " for Fabric " + stonecutter.current.version
+
+    modrinth {
+        accessToken = providers.environmentVariable("MR_KEY")
+        projectId = "to be added"
+        minecraftVersions.add(stonecutter.current.version)
+        requires("fabric-api", "fzzy-config")
+        optional("modmenu")
+    }
+
+    curseforge {
+        accessToken = providers.environmentVariable("CF_KEY")
+        projectId = "to be added"
+        minecraftVersions.add(stonecutter.current.version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        clientRequired = true
+        serverRequired = true
+        requires("fabric-api", "fzzy-config")
+        optional("modmenu")
+    }
+}
