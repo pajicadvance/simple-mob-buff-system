@@ -10,10 +10,25 @@ base {
     archivesName = project.archives_base_name
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/smbs.accesswidener")
+}
+
 repositories {
     maven { url = "https://maven.parchmentmc.org" }
     maven { url = "https://maven.terraformersmc.com/" }
     maven { url = "https://maven.fzzyhmstrs.me/"}
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
@@ -26,6 +41,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}"
     modImplementation "com.terraformersmc:modmenu:${property("modmenu_version")}"
     modImplementation "me.fzzyhmstrs:fzzy_config:${property("fzzy_version")}"
+    modRuntimeOnly "maven.modrinth:jade:${property("jade_version")}"
 }
 
 processResources {

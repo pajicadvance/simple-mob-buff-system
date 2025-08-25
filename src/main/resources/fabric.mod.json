@@ -3,11 +3,11 @@
   "id": "smbs",
   "version": "${version}",
   "name": "Simple Mob Buff System",
-  "description": "Makes mobs rarely spawn with buffs and drop rewards based on how strong they are",
+  "description": "Gives a chance for mobs to spawn with buffs and makes them drop additional rewards based on how strong they are.",
   "authors": ["pajic"],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/smbs/icon.png",
+  "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
@@ -20,6 +20,7 @@
   "mixins": [
     "smbs.mixins.json"
   ],
+  "accessWidener": "smbs.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",

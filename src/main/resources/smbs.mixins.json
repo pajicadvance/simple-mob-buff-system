@@ -4,8 +4,10 @@
   "package": "me.pajic.smbs.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-  ],
-  "client": [
+    "AreaEffectCloudMixin",
+    "MobMixin",
+    "SpiderMixin",
+    "ZombieMixin"
   ],
   "injectors": {
     "defaultRequire": 1
