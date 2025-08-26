@@ -8,15 +8,13 @@ While similar in concept to mods like [Champions](https://modrinth.com/mod/champ
 
 Buffed mobs will emit particle effects based on the buffs they have. This is the only way you can tell if a mob is buffed or not without other mods. I recommend [Jade](https://modrinth.com/mod/jade) for getting information on mob health and the buffs it has and [Particle Effects](https://modrinth.com/mod/particle-effects) for unique particle textures for each effect.
 
-The mod configuration is extensive and allows you to do pretty much whatever you want. Apply any effect to any mob, modded or vanilla. Want invisible creepers? Horses that move at the speed of light? Polar bears the size of a mountain? _Not that I'm endorsing any of those_, but you sure can do it with this mod!
+The mod configuration is extensive and allows you to do pretty much whatever you want. Apply any effect to any mob, modded or vanilla. Want invisible creepers? Horses that move at the speed of light? Polar bears the size of a mountain? _Not that I recommend any of those_, but you sure can do it with this mod!
 
 With that being said, if you want to know how to configure the mod and how it works, read on.
 
 ## Editing the configuration
 
 The mod uses [Fzzy Config](https://modrinth.com/mod/fzzy-config) to provide a relatively simple to use and cohesive in-game configuration. You'll also need [Mod Menu](https://modrinth.com/mod/modmenu) to actually access the configuration screen. Every option has a description and there are pointers and instructions on how to do stuff. There are also suggestions and auto-completion for fields where status effects, mobs or items are inputted.
-
-While the mod has server-side functionality only, it's still recommended to install it client-side for editing the configuration, unless you're fine with manually editing the config (don't come to me if you got syntax errors, though!).
 
 ## How it works
 
