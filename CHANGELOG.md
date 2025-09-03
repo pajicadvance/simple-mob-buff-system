@@ -1,1 +1,1 @@
-- Fix mod icon.
+- Added option "Only buffed mobs spread sculk", disabled by default.

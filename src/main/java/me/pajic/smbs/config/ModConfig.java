@@ -38,6 +38,7 @@ public class ModConfig extends Config {
     public ValidatedInt xpPerBuffLevel = new ValidatedInt(3, Integer.MAX_VALUE, 1);
     public ValidatedFloat enchantedBookThresholdPercentage = new ValidatedFloat(66, 100, 1, ValidatedNumber.WidgetType.TEXTBOX);
     public ValidatedBoolean allowBuffedMobsFromSpawners = new ValidatedBoolean(false);
+    public ValidatedBoolean onlyBuffedMobsSpreadSculk = new ValidatedBoolean(false);
 
     @BlockArray
     public ValidatedMap<BuffEntry, Set<ResourceLocation>> buffRules = (new ValidatedMap.Builder())

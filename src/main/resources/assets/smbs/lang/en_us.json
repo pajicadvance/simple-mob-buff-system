@@ -12,6 +12,7 @@
   "smbs.config.enchantedBookThresholdPercentage": "Enchanted book drop threshold (%)",
   "smbs.config.enchantedBookThresholdPercentage.desc": "The mob needs to have a buff level higher than this percentage of the highest possible buff level to drop an enchanted book.",
   "smbs.config.allowBuffedMobsFromSpawners": "Allow buffed mobs to spawn from mob spawners",
+  "smbs.config.onlyBuffedMobsSpreadSculk": "Only buffed mobs spread sculk",
   "smbs.config.buffRules": "Mob buff rules",
   "smbs.config.buffRules.desc": "Define which buffs should be applied to which mobs here. Each rule has a buff entry on the left and the list of mobs it should apply to on the right.",
   "smbs.config.defaultMeleeBuffs": "Default melee buffs",
