@@ -4,7 +4,8 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedSet;
 import me.pajic.smbs.Main;
-import me.pajic.smbs.access.MobAccess;
+import me.pajic.smbs.util.MobExtension;
+import me.pajic.smbs.util.ZombieExtension;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -44,7 +45,7 @@ public class BuffHandler {
      */
     public static void applyBuffs(Mob mob, ServerLevelAccessor levelAccessor, DifficultyInstance difficulty) {
         RandomSource random = levelAccessor.getRandom();
-        ((MobAccess) mob).smbs$setShouldDropRewards(true);
+        ((MobExtension) mob).smbs$setShouldDropRewards(true);
         ResourceLocation mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         Set<BuffEntry> possibleBuffEntries = new HashSet<>();
         Main.CONFIG.buffRules.forEach((buffEntry, mobTypeKeys) -> {
@@ -61,14 +62,14 @@ public class BuffHandler {
                             0, maxAmplifier
                     );
                     mob.addEffect(new MobEffectInstance(mobEffect, -1, amplifier));
-                    ((MobAccess) mob).smbs$increaseBuffLevel(1 + amplifier);
+                    ((MobExtension) mob).smbs$increaseBuffLevel(1 + amplifier);
                 }
             });
         }
         if (mob.getMaxHealth() > 20.0F) mob.heal(mob.getMaxHealth());
-        if (((MobAccess) mob).smbs$getBuffLevel() > 0) Main.debugLog(
+        if (((MobExtension) mob).smbs$getBuffLevel() > 0) Main.debugLog(
                 "Buff level {} mob {} at {} {} {}",
-                ((MobAccess) mob).smbs$getBuffLevel(), mob.getName().getString(), mob.getX(), mob.getY(), mob.getZ()
+                ((MobExtension) mob).smbs$getBuffLevel(), mob.getName().getString(), mob.getX(), mob.getY(), mob.getZ()
         );
     }
 
@@ -87,18 +88,18 @@ public class BuffHandler {
      * @param level The current server world.
      */
     public static void dropRewards(Mob mob, int lastHurtByPlayerTime, ServerLevel level) {
-        if (((MobAccess) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (((MobExtension) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
             // Determine max possible buff level
             ResourceLocation mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
             Set<BuffEntry> possibleBuffEntries = new HashSet<>();
             Main.CONFIG.buffRules.forEach((buffEntry, mobTypeKeys) -> {
                 if (mobTypeKeys.contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
             });
-            getBuffs(possibleBuffEntries, mob).forEach((mobEffect, i) -> ((MobAccess) mob).smbs$increaseMaxBuffLevel(i));
+            getBuffs(possibleBuffEntries, mob).forEach((mobEffect, i) -> ((MobExtension) mob).smbs$increaseMaxBuffLevel(i));
             // Increase current buff level if mob is a zombie leader
             boolean isLeader = false;
-            if (mob instanceof Zombie zombie && zombie.getEntityData().get(MobData.IS_LEADER)) {
-                ((MobAccess) mob).smbs$increaseBuffLevel(6);
+            if (mob instanceof Zombie zombie && ((ZombieExtension) zombie).smbs$isLeader()) {
+                ((MobExtension) mob).smbs$increaseBuffLevel(6);
                 isLeader = true;
             }
             // Increase current and max buff level for each enchanted piece of equipment
@@ -110,11 +111,11 @@ public class BuffHandler {
             if (mob.getItemBySlot(EquipmentSlot.CHEST).isEnchanted()) increase++;
             if (mob.getItemBySlot(EquipmentSlot.LEGS).isEnchanted()) increase++;
             if (mob.getItemBySlot(EquipmentSlot.FEET).isEnchanted()) increase++;
-            ((MobAccess) mob).smbs$increaseBuffLevel(increase);
-            ((MobAccess) mob).smbs$increaseMaxBuffLevel(increase);
+            ((MobExtension) mob).smbs$increaseBuffLevel(increase);
+            ((MobExtension) mob).smbs$increaseMaxBuffLevel(increase);
 
-            int maxBuffLevel = ((MobAccess) mob).smbs$getMaxBuffLevel();
-            int buffLevel = ((MobAccess) mob).smbs$getBuffLevel();
+            int maxBuffLevel = ((MobExtension) mob).smbs$getMaxBuffLevel();
+            int buffLevel = ((MobExtension) mob).smbs$getBuffLevel();
             int buffLevelThreshold = Math.round(maxBuffLevel * (Main.CONFIG.enchantedBookThresholdPercentage.get() / 100));
             // Drop enchanted book
             if (buffLevel > buffLevelThreshold) {

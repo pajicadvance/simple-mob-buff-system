@@ -1,1 +1,1 @@
-- Added option "Only buffed mobs spread sculk", disabled by default.
+- Fixed issues with some zombie-like mobs from other mods failing to spawn.

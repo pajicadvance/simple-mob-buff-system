@@ -3,7 +3,6 @@ package me.pajic.smbs;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
 import me.pajic.smbs.config.ModConfig;
 import me.pajic.smbs.system.StatBoostEffects;
-import me.pajic.smbs.system.MobData;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +18,6 @@ public class Main implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        MobData.init();
         StatBoostEffects.init();
     }
 

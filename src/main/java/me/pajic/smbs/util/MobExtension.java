@@ -1,6 +1,6 @@
-package me.pajic.smbs.access;
+package me.pajic.smbs.util;
 
-public interface MobAccess {
+public interface MobExtension {
     int smbs$getBuffLevel();
     void smbs$increaseBuffLevel(int increase);
     int smbs$getMaxBuffLevel();

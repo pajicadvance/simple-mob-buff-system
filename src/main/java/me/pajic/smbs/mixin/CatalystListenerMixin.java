@@ -3,7 +3,7 @@ package me.pajic.smbs.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import me.pajic.smbs.Main;
-import me.pajic.smbs.access.MobAccess;
+import me.pajic.smbs.util.MobExtension;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
@@ -18,7 +18,7 @@ public class CatalystListenerMixin {
     @WrapMethod(method = "handleGameEvent")
     private boolean noSculkSpreadIfMobNotBuffed(ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.Context context, Vec3 pos, Operation<Boolean> original) {
         if (Main.CONFIG.onlyBuffedMobsSpreadSculk.get()) {
-            return context.sourceEntity() instanceof Mob mob && ((MobAccess) mob).smbs$getBuffLevel() > 0 ?
+            return context.sourceEntity() instanceof Mob mob && ((MobExtension) mob).smbs$getBuffLevel() > 0 ?
                     original.call(level, gameEvent, context, pos) : false;
         }
         return original.call(level, gameEvent, context, pos);

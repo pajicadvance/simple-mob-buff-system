@@ -1,7 +1,7 @@
 package me.pajic.smbs.mixin;
 
 import me.pajic.smbs.Main;
-import me.pajic.smbs.access.MobAccess;
+import me.pajic.smbs.util.MobExtension;
 import me.pajic.smbs.system.BuffHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
@@ -24,7 +24,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 *///?}
 
 @Mixin(Mob.class)
-public abstract class MobMixin extends LivingEntity implements MobAccess {
+public abstract class MobMixin extends LivingEntity implements MobExtension {
     protected MobMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
