@@ -1,1 +1,1 @@
-- Fixed issues with some zombie-like mobs from other mods failing to spawn.
+- Updated to Minecraft 1.21.10.

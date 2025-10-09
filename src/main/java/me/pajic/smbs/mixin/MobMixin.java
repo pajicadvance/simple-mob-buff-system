@@ -16,12 +16,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 //? if < 1.21.8 {
-import net.minecraft.nbt.CompoundTag;
-//?}
-//? if >= 1.21.8 {
-/*import net.minecraft.world.level.storage.ValueInput;
+/*import net.minecraft.nbt.CompoundTag;
+*///?} else {
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-*///?}
+//?}
 
 @Mixin(Mob.class)
 public abstract class MobMixin extends LivingEntity implements MobExtension {
@@ -44,8 +43,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             method = "finalizeSpawn",
             at = @At("HEAD")
     )
-    private void getSpawnReason(ServerLevelAccessor level, DifficultyInstance difficulty, /*? if < 1.21.8 {*/MobSpawnType spawnType/*?}*//*? if >= 1.21.8 {*//*EntitySpawnReason spawnType*//*?}*/, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir) {
-        fromSpawner = /*? if < 1.21.8 {*/MobSpawnType/*?}*//*? if >= 1.21.8 {*//*EntitySpawnReason*//*?}*/.isSpawner(spawnType);
+    private void getSpawnReason(ServerLevelAccessor level, DifficultyInstance difficulty, /*? if < 1.21.8 {*//*MobSpawnType spawnType*//*?} else {*/EntitySpawnReason spawnType/*?}*/, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir) {
+        fromSpawner = /*? if < 1.21.8 {*//*MobSpawnType*//*?} else {*/EntitySpawnReason/*?}*/.isSpawner(spawnType);
     }
 
     /**
@@ -53,6 +52,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
      * @reason Once the mob starts ticking, invokes the mob buff system to apply mob buffs,
      * if buff application hasn't been attempted yet and the mob didn't spawn from a spawner.
      */
+    @SuppressWarnings("resource")
     @Inject(
             method = "tick",
             at = @At("HEAD")
@@ -74,7 +74,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("TAIL")
     )
     private void dropRewards(ServerLevel level, DamageSource damageSource, boolean recentlyHit, CallbackInfo ci) {
-        BuffHandler.dropRewards(thisMob, /*? if < 1.21.8 {*/lastHurtByPlayerTime/*?}*//*? if >= 1.21.8 {*//*lastHurtByPlayerMemoryTime*//*?}*/, level);
+        BuffHandler.dropRewards(thisMob, /*? if < 1.21.8 {*//*lastHurtByPlayerTime*//*?}*//*? if >= 1.21.8 {*/lastHurtByPlayerMemoryTime/*?}*/, level);
     }
 
     @Override
@@ -108,7 +108,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
     }
 
     //? if < 1.21.8 {
-    @Inject(
+    /*@Inject(
             method = "addAdditionalSaveData",
             at = @At("TAIL")
     )
@@ -129,9 +129,9 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         shouldDropRewards = compound.getBoolean("ShouldDropRewards");
         buffApplyAttempted = compound.getBoolean("BuffApplyAttempted");
     }
-    //?}
+    *///?}
     //? if >= 1.21.8 {
-    /*@Inject(
+    @Inject(
             method = "addAdditionalSaveData",
             at = @At("TAIL")
     )
@@ -152,5 +152,5 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         shouldDropRewards = input.getBooleanOr("ShouldDropRewards", false);
         buffApplyAttempted = input.getBooleanOr("BuffApplyAttempted", true);
     }
-    *///?}
+    //?}
 }

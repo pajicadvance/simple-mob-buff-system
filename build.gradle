@@ -41,7 +41,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}"
     modImplementation "com.terraformersmc:modmenu:${property("modmenu_version")}"
     modImplementation "me.fzzyhmstrs:fzzy_config:${property("fzzy_version")}"
-    modRuntimeOnly "maven.modrinth:jade:${property("jade_version")}"
+    //modRuntimeOnly "maven.modrinth:jade:${property("jade_version")}"
 }
 
 processResources {

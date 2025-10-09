@@ -128,7 +128,7 @@ public class BuffHandler {
                     );
                     ItemStack book = new ItemStack(Items.ENCHANTED_BOOK);
                     book.enchant(enchantment, i);
-                    mob.spawnAtLocation(/*? if >= 1.21.8 {*//*level,*//*?}*/ book);
+                    mob.spawnAtLocation(/*? if >= 1.21.8 {*/level,/*?}*/ book);
                 });
             }
             // Drop XP orbs
@@ -187,7 +187,7 @@ public class BuffHandler {
 
     private static void addBuffs(Object2IntArrayMap<Holder<MobEffect>> buffs, ValidatedMap<ResourceLocation, Integer> addition) {
         addition.forEach((rl, i) -> buffs.put(
-                BuiltInRegistries.MOB_EFFECT./*? if < 1.21.8 {*/getHolder/*?}*//*? if >= 1.21.8 {*//*get*//*?}*/(rl).orElseThrow(), i.intValue())
+                BuiltInRegistries.MOB_EFFECT./*? if < 1.21.8 {*//*getHolder*//*?} else {*/get/*?}*/(rl).orElseThrow(), i.intValue())
         );
     }
 
@@ -206,7 +206,7 @@ public class BuffHandler {
         });
         return items.contains(stack.getItem()) ||
                 itemTags.stream().anyMatch(itemTag -> BuiltInRegistries.ITEM
-                        ./*? if < 1.21.8 {*/getTag/*?}*//*? if >= 1.21.8 {*//*get*//*?}*/(itemTag).orElseThrow().contains(stack.getItemHolder())
+                        ./*? if < 1.21.8 {*//*getTag*//*?} else {*/get/*?}*/(itemTag).orElseThrow().contains(stack.getItemHolder())
                 );
     }
 

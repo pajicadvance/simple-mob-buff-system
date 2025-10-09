@@ -19,7 +19,7 @@ public class AreaEffectCloudMixin {
      * we limit the effect duration when it gets transferred to a player.
      */
     @ModifyArg(
-            method = /*? if < 1.21.8 {*/"tick"/*?}*//*? if >= 1.21.8 {*//*"serverTick"*//*?}*/,
+            method = /*? if < 1.21.8 {*//*"tick"*//*?}*//*? if >= 1.21.8 {*/"serverTick"/*?}*/,
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"

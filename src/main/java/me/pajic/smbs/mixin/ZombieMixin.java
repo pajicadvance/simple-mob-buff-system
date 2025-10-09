@@ -15,12 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //? if < 1.21.8 {
-import net.minecraft.nbt.CompoundTag;
-//?}
-//? if >= 1.21.8 {
-/*import net.minecraft.world.level.storage.ValueInput;
+/*import net.minecraft.nbt.CompoundTag;
+*///?} else {
+import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-*///?}
+//?}
 
 @Mixin(Zombie.class)
 public abstract class ZombieMixin extends Mob implements ZombieExtension {
@@ -28,6 +27,7 @@ public abstract class ZombieMixin extends Mob implements ZombieExtension {
         super(entityType, level);
     }
 
+    @SuppressWarnings("WrongEntityDataParameterClass")
     @Unique private static final EntityDataAccessor<Boolean> IS_LEADER = SynchedEntityData.defineId(
             Zombie.class, EntityDataSerializers.BOOLEAN
     );
@@ -67,7 +67,7 @@ public abstract class ZombieMixin extends Mob implements ZombieExtension {
     }
 
     //? if < 1.21.8 {
-    @Inject(
+    /*@Inject(
             method = "addAdditionalSaveData",
             at = @At("TAIL")
     )
@@ -82,9 +82,8 @@ public abstract class ZombieMixin extends Mob implements ZombieExtension {
     private void readLeaderData(CompoundTag compound, CallbackInfo ci) {
         entityData.set(IS_LEADER, compound.getBoolean("IsLeader"));
     }
-    //?}
-    //? if >= 1.21.8 {
-    /*@Inject(
+    *///?} else {
+    @Inject(
             method = "addAdditionalSaveData",
             at = @At("TAIL")
     )
@@ -99,5 +98,5 @@ public abstract class ZombieMixin extends Mob implements ZombieExtension {
     private void readLeaderData(ValueInput input, CallbackInfo ci) {
         entityData.set(IS_LEADER, input.getBooleanOr("IsLeader", false));
     }
-    *///?}
+    //?}
 }

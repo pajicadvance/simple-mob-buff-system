@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 @Version(version = 1)
 public class ModConfig extends Config {
     public ModConfig() {
