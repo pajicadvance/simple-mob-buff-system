@@ -32,7 +32,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
     @Unique private int maxBuffLevel = 0;
     @Unique private boolean shouldDropRewards = false;
     @Unique private final Mob thisMob = (Mob) (Object) this;
-    @Unique private boolean fromSpawner = false;
+    @Unique private Boolean fromSpawner = null;
     @Unique private boolean buffApplyAttempted = false;
 
     /**
@@ -58,10 +58,11 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("HEAD")
     )
     private void applyBuffs(CallbackInfo ci) {
-        if (!level().isClientSide() && !buffApplyAttempted) {
+        if (!level().isClientSide() && !buffApplyAttempted && fromSpawner != null) {
             buffApplyAttempted = true;
-            if (!Main.CONFIG.allowBuffedMobsFromSpawners.get() && fromSpawner) return;
-            BuffHandler.applyBuffs(thisMob, (ServerLevel) level(), level().getCurrentDifficultyAt(thisMob.getOnPos()));
+            if (Main.CONFIG.allowBuffedMobsFromSpawners.get() || !fromSpawner) {
+                BuffHandler.applyBuffs(thisMob, (ServerLevel) level(), level().getCurrentDifficultyAt(thisMob.getOnPos()));
+            }
         }
     }
 

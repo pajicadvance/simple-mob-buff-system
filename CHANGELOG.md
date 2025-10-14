@@ -1,1 +1,1 @@
-- Updated to Minecraft 1.21.10.
+- Fixed "Allow buffed mobs to spawn from mob spawners" option.
