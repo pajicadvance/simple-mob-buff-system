@@ -37,6 +37,8 @@ public class ModConfig extends Config {
     public ValidatedFloat maxChancePerBuff = new ValidatedFloat(75, 100, 0, ValidatedNumber.WidgetType.TEXTBOX);
     public ValidatedInt xpPerBuffLevel = new ValidatedInt(3, Integer.MAX_VALUE, 1);
     public ValidatedFloat enchantedBookThresholdPercentage = new ValidatedFloat(66, 100, 1, ValidatedNumber.WidgetType.TEXTBOX);
+    public ValidatedBoolean increasedEquipmentDropChancePerBuff = new ValidatedBoolean(true);
+    public ValidatedFloat maxEquipmentDropChanceIncrease = new ValidatedFloat(10F, Float.MAX_VALUE, 1F);
     public ValidatedBoolean allowBuffedMobsFromSpawners = new ValidatedBoolean(false);
     public ValidatedBoolean onlyBuffedMobsSpreadSculk = new ValidatedBoolean(false);
 

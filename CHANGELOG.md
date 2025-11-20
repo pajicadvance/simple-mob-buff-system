@@ -1,1 +1,1 @@
-- Fixed "Allow buffed mobs to spawn from mob spawners" option.
+- Added new option "Increased equipment drop chance per buff". When enabled, weapons and armor worn by mobs will have a higher chance to drop the stronger the mob is. Enabled by default and the maximum possible chance increase can be configured.

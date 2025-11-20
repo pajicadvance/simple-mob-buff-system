@@ -66,10 +66,29 @@ public class BuffHandler {
                 }
             });
         }
+        // Increase current and max buff level for each enchanted piece of equipment
+        // Max buff level is increased too because we don't want this increase to
+        // contribute to the enchanted book drop chance
+        int increase = 0;
+        if (getWeapon(mob).isEnchanted()) increase++;
+        if (mob.getItemBySlot(EquipmentSlot.HEAD).isEnchanted()) increase++;
+        if (mob.getItemBySlot(EquipmentSlot.CHEST).isEnchanted()) increase++;
+        if (mob.getItemBySlot(EquipmentSlot.LEGS).isEnchanted()) increase++;
+        if (mob.getItemBySlot(EquipmentSlot.FEET).isEnchanted()) increase++;
+        ((MobExtension) mob).smbs$increaseBuffLevel(increase);
+        ((MobExtension) mob).smbs$increaseMaxBuffLevel(increase);
+        // Increase current buff level if mob is a zombie leader
+        boolean isLeader = false;
+        if (mob instanceof Zombie zombie && ((ZombieExtension) zombie).smbs$isLeader()) {
+            ((MobExtension) mob).smbs$increaseBuffLevel(6);
+            isLeader = true;
+        }
+        // If mob has a health buff make sure it spawns with max possible health
         if (mob.getMaxHealth() > 20.0F) mob.heal(mob.getMaxHealth());
+
         if (((MobExtension) mob).smbs$getBuffLevel() > 0) Main.debugLog(
-                "Buff level {} mob {} at {} {} {}",
-                ((MobExtension) mob).smbs$getBuffLevel(), mob.getName().getString(), mob.getX(), mob.getY(), mob.getZ()
+                "Buff level {} mob {} at {} {} {}\nArmor bonus: {}\nLeader: {}",
+                ((MobExtension) mob).smbs$getBuffLevel(), mob.getName().getString(), mob.getX(), mob.getY(), mob.getZ(), increase, isLeader
         );
     }
 
@@ -96,27 +115,16 @@ public class BuffHandler {
                 if (mobTypeKeys.contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
             });
             getBuffs(possibleBuffEntries, mob).forEach((mobEffect, i) -> ((MobExtension) mob).smbs$increaseMaxBuffLevel(i));
-            // Increase current buff level if mob is a zombie leader
-            boolean isLeader = false;
-            if (mob instanceof Zombie zombie && ((ZombieExtension) zombie).smbs$isLeader()) {
-                ((MobExtension) mob).smbs$increaseBuffLevel(6);
-                isLeader = true;
-            }
-            // Increase current and max buff level for each enchanted piece of equipment
-            // Max buff level is increased too because we don't want this increase to
-            // contribute to the enchanted book drop chance
-            int increase = 0;
-            if (getWeapon(mob).isEnchanted()) increase++;
-            if (mob.getItemBySlot(EquipmentSlot.HEAD).isEnchanted()) increase++;
-            if (mob.getItemBySlot(EquipmentSlot.CHEST).isEnchanted()) increase++;
-            if (mob.getItemBySlot(EquipmentSlot.LEGS).isEnchanted()) increase++;
-            if (mob.getItemBySlot(EquipmentSlot.FEET).isEnchanted()) increase++;
-            ((MobExtension) mob).smbs$increaseBuffLevel(increase);
-            ((MobExtension) mob).smbs$increaseMaxBuffLevel(increase);
 
             int maxBuffLevel = ((MobExtension) mob).smbs$getMaxBuffLevel();
             int buffLevel = ((MobExtension) mob).smbs$getBuffLevel();
             int buffLevelThreshold = Math.round(maxBuffLevel * (Main.CONFIG.enchantedBookThresholdPercentage.get() / 100));
+            // Increase equipment drop chances
+            if (Main.CONFIG.increasedEquipmentDropChancePerBuff.get()) for (EquipmentSlot slot : EquipmentSlot.values()) {
+                mob.setDropChance(slot, getDropChanceForSlot(mob, slot) * Mth.lerp(
+                        (float) buffLevel / maxBuffLevel, 1F, Main.CONFIG.maxEquipmentDropChanceIncrease.get()
+                ));
+            }
             // Drop enchanted book
             if (buffLevel > buffLevelThreshold) {
                 List<Holder<Enchantment>> enchantments = new ArrayList<>();
@@ -137,8 +145,8 @@ public class BuffHandler {
                     level.addFreshEntity(new ExperienceOrb(level, mob.getX(), mob.getY(), mob.getZ(), Main.CONFIG.xpPerBuffLevel.get()));
                 }
                 Main.debugLog(
-                        "\nCurrent buff level: {}\nLevel required for book: {}\nMaximum buff level: {}\nArmor bonus: {}\nLeader: {}",
-                        buffLevel, buffLevelThreshold + 1, maxBuffLevel, increase, isLeader
+                        "\nCurrent buff level: {}\nLevel required for book: {}\nMaximum buff level: {}",
+                        buffLevel, buffLevelThreshold + 1, maxBuffLevel
                 );
             }
         }
@@ -208,6 +216,18 @@ public class BuffHandler {
                 itemTags.stream().anyMatch(itemTag -> BuiltInRegistries.ITEM
                         ./*? if < 1.21.8 {*//*getTag*//*?} else {*/get/*?}*/(itemTag).orElseThrow().contains(stack.getItemHolder())
                 );
+    }
+
+    private static float getDropChanceForSlot(Mob mob, EquipmentSlot slot) {
+        //? if > 1.21.1 {
+        return mob.getDropChances().byEquipment(slot);
+        //?} else {
+        /*return switch (slot.getType()) {
+            case HAND -> mob.handDropChances[slot.getIndex()];
+            case HUMANOID_ARMOR -> mob.armorDropChances[slot.getIndex()];
+            case ANIMAL_ARMOR -> mob.bodyArmorDropChance;
+        };
+        *///?}
     }
 
     private static boolean isMeleeWeapon(ItemStack stack) {

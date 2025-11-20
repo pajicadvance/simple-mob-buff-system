@@ -72,7 +72,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
      */
     @Inject(
             method = "dropCustomDeathLoot",
-            at = @At("TAIL")
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/LivingEntity;dropCustomDeathLoot(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;Z)V"
+            )
     )
     private void dropRewards(ServerLevel level, DamageSource damageSource, boolean recentlyHit, CallbackInfo ci) {
         BuffHandler.dropRewards(thisMob, /*? if < 1.21.8 {*//*lastHurtByPlayerTime*//*?}*//*? if >= 1.21.8 {*/lastHurtByPlayerMemoryTime/*?}*/, level);
