@@ -1,2 +1,2 @@
-- Added support for NeoForge 1.21.1 and 1.21.10.
-- Internal changes. This should not affect anything in the mod in any way. Please report any bugs or discrepancies at the issue tracker.
+- Updated to Minecraft 1.21.11.
+- Leader zombie detection now uses a data attachment for increased stability.

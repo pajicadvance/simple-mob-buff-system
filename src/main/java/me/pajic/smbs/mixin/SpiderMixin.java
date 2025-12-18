@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.spider.Spider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -20,7 +20,7 @@ public class SpiderMixin {
             method = "finalizeSpawn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/monster/Spider$SpiderEffectsGroupData;setRandomEffect(Lnet/minecraft/util/RandomSource;)V"
+                    target = "Lnet/minecraft/world/entity/monster/spider/Spider$SpiderEffectsGroupData;setRandomEffect(Lnet/minecraft/util/RandomSource;)V"
             )
     )
     private boolean disableVanillaBuff(Spider.SpiderEffectsGroupData instance, RandomSource random) {
@@ -35,7 +35,7 @@ public class SpiderMixin {
             method = "finalizeSpawn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/monster/Spider;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;)Z"
+                    target = "Lnet/minecraft/world/entity/monster/spider/Spider;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;)Z"
             )
     )
     private boolean disableVanillaBuff(Spider instance, MobEffectInstance mobEffectInstance, Operation<Boolean> original) {

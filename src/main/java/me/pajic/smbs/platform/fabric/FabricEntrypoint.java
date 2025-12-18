@@ -4,6 +4,7 @@ package me.pajic.smbs.platform.fabric;
 
 import me.pajic.smbs.SMBS;
 import me.pajic.smbs.system.StatBoostEffects;
+import me.pajic.smbs.util.AttachmentUtil;
 import me.pajic.smbs.util.Buffs;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
@@ -15,6 +16,7 @@ public class FabricEntrypoint implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		SMBS.onInitialize();
+		AttachmentUtil.init();
 		StatBoostEffects.init();
 		initRegistry();
 	}

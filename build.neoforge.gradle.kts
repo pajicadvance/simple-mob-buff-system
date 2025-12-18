@@ -23,22 +23,39 @@ platform {
 }
 
 stonecutter {
+	filters.exclude("**/*.accesswidener", "**/*.cfg")
 	val dir = eval(current.version, ">1.21.10")
 	replacements.string {
 		direction = dir
-		replace(".ResourceLocation", ".Identifier")
+		replace("ValidatedIdentifier", "ValidatedIdentifier")
 	}
 	replacements.string {
 		direction = dir
-		replace("ResourceLocation.", "Identifier.")
+		replace("ResourceLocation", "Identifier")
 	}
 	replacements.string {
 		direction = dir
-		replace("<ResourceLocation", "<Identifier")
+		replace("net.minecraft.world.entity.monster.Spider", "net.minecraft.world.entity.monster.spider.Spider")
 	}
 	replacements.string {
 		direction = dir
-		replace(" ResourceLocation ", " Identifier ")
+		replace("net.minecraft.world.entity.monster.Zombie", "net.minecraft.world.entity.monster.zombie.Zombie")
+	}
+	replacements.string {
+		direction = dir
+		replace("net.minecraft.Util", "net.minecraft.util.Util")
+	}
+	replacements.string {
+		direction = dir
+		replace("net.minecraft.world.level.GameRules", "net.minecraft.world.level.gamerules.GameRules")
+	}
+	replacements.string {
+		direction = dir
+		replace("Lnet/minecraft/world/entity/monster/Zombie", "Lnet/minecraft/world/entity/monster/zombie/Zombie")
+	}
+	replacements.string {
+		direction = dir
+		replace("Lnet/minecraft/world/entity/monster/Spider", "Lnet/minecraft/world/entity/monster/spider/Spider")
 	}
 }
 

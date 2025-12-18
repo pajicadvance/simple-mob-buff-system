@@ -28,12 +28,12 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         super(entityType, level);
     }
 
-    @Unique private int buffLevel = 0;
-    @Unique private int maxBuffLevel = 0;
-    @Unique private boolean shouldDropRewards = false;
-    @Unique private final Mob thisMob = (Mob) (Object) this;
-    @Unique private Boolean fromSpawner = null;
-    @Unique private boolean buffApplyAttempted = false;
+    @Unique private int smbs$buffLevel = 0;
+    @Unique private int smbs$maxBuffLevel = 0;
+    @Unique private boolean smbs$shouldDropRewards = false;
+    @Unique private final Mob smbs$thisMob = (Mob) (Object) this;
+    @Unique private Boolean smbs$fromSpawner = null;
+    @Unique private boolean smbs$buffApplyAttempted = false;
 
     /**
      * @author pajic
@@ -44,7 +44,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("HEAD")
     )
     private void getSpawnReason(ServerLevelAccessor level, DifficultyInstance difficulty, /*? if 1.21.1 {*//*MobSpawnType spawnType*//*?} else {*/EntitySpawnReason spawnType/*?}*/, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir) {
-        fromSpawner = /*? if 1.21.1 {*//*MobSpawnType*//*?} else {*/EntitySpawnReason/*?}*/.isSpawner(spawnType);
+        smbs$fromSpawner = /*? if 1.21.1 {*//*MobSpawnType*//*?} else {*/EntitySpawnReason/*?}*/.isSpawner(spawnType);
     }
 
     /**
@@ -58,10 +58,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("HEAD")
     )
     private void applyBuffs(CallbackInfo ci) {
-        if (!level().isClientSide() && !buffApplyAttempted && fromSpawner != null) {
-            buffApplyAttempted = true;
-            if (SMBS.CONFIG.allowBuffedMobsFromSpawners.get() || !fromSpawner) {
-                BuffHandler.applyBuffs(thisMob, (ServerLevel) level(), level().getCurrentDifficultyAt(thisMob.getOnPos()));
+        if (!level().isClientSide() && !smbs$buffApplyAttempted && smbs$fromSpawner != null) {
+            smbs$buffApplyAttempted = true;
+            if (SMBS.CONFIG.allowBuffedMobsFromSpawners.get() || !smbs$fromSpawner) {
+                BuffHandler.applyBuffs(smbs$thisMob, (ServerLevel) level(), (/*? if >=1.21.11 {*/(ServerLevel)/*?}*/level()).getCurrentDifficultyAt(smbs$thisMob.getOnPos()));
             }
         }
     }
@@ -78,37 +78,37 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             )
     )
     private void dropRewards(ServerLevel level, DamageSource damageSource, boolean recentlyHit, CallbackInfo ci) {
-        BuffHandler.dropRewards(thisMob, /*? if 1.21.1 {*//*lastHurtByPlayerTime*//*?} else {*/lastHurtByPlayerMemoryTime/*?}*/, level);
+        BuffHandler.dropRewards(smbs$thisMob, /*? if 1.21.1 {*//*lastHurtByPlayerTime*//*?} else {*/lastHurtByPlayerMemoryTime/*?}*/, level);
     }
 
     @Override
     public int smbs$getBuffLevel() {
-        return buffLevel;
+        return smbs$buffLevel;
     }
 
     @Override
     public void smbs$increaseBuffLevel(int increase) {
-        buffLevel += increase;
+        smbs$buffLevel += increase;
     }
 
     @Override
     public int smbs$getMaxBuffLevel() {
-        return maxBuffLevel;
+        return smbs$maxBuffLevel;
     }
 
     @Override
     public void smbs$increaseMaxBuffLevel(int increase) {
-        maxBuffLevel += increase;
+        smbs$maxBuffLevel += increase;
     }
 
     @Override
     public boolean smbs$getShouldDropRewards() {
-        return shouldDropRewards;
+        return smbs$shouldDropRewards;
     }
 
     @Override
     public void smbs$setShouldDropRewards(boolean shouldDropRewards) {
-        this.shouldDropRewards = shouldDropRewards;
+        this.smbs$shouldDropRewards = shouldDropRewards;
     }
 
     //? if 1.21.1 {
@@ -117,10 +117,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("TAIL")
     )
     private void save(CompoundTag compound, CallbackInfo ci) {
-        compound.putInt("BuffLevel", buffLevel);
-        compound.putInt("MaxBuffLevel", maxBuffLevel);
-        compound.putBoolean("ShouldDropRewards", shouldDropRewards);
-        compound.putBoolean("BuffApplyAttempted", buffApplyAttempted);
+        compound.putInt("BuffLevel", smbs$buffLevel);
+        compound.putInt("MaxBuffLevel", smbs$maxBuffLevel);
+        compound.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
+        compound.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
     }
 
     @Inject(
@@ -128,10 +128,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("TAIL")
     )
     private void load(CompoundTag compound, CallbackInfo ci) {
-        buffLevel = compound.getInt("BuffLevel");
-        maxBuffLevel = compound.getInt("MaxBuffLevel");
-        shouldDropRewards = compound.getBoolean("ShouldDropRewards");
-        buffApplyAttempted = compound.getBoolean("BuffApplyAttempted");
+		smbs$buffLevel = compound.getInt("BuffLevel");
+		smbs$maxBuffLevel = compound.getInt("MaxBuffLevel");
+		smbs$shouldDropRewards = compound.getBoolean("ShouldDropRewards");
+		smbs$buffApplyAttempted = compound.getBoolean("BuffApplyAttempted");
     }
     *///?} else {
     @Inject(
@@ -139,10 +139,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("TAIL")
     )
     private void save(ValueOutput output, CallbackInfo ci) {
-        output.putInt("BuffLevel", buffLevel);
-        output.putInt("MaxBuffLevel", maxBuffLevel);
-        output.putBoolean("ShouldDropRewards", shouldDropRewards);
-        output.putBoolean("BuffApplyAttempted", buffApplyAttempted);
+        output.putInt("BuffLevel", smbs$buffLevel);
+        output.putInt("MaxBuffLevel", smbs$maxBuffLevel);
+        output.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
+        output.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
     }
 
     @Inject(
@@ -150,10 +150,10 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("TAIL")
     )
     private void load(ValueInput input, CallbackInfo ci) {
-        buffLevel = input.getIntOr("BuffLevel", 0);
-        maxBuffLevel = input.getIntOr("MaxBuffLevel", 0);
-        shouldDropRewards = input.getBooleanOr("ShouldDropRewards", false);
-        buffApplyAttempted = input.getBooleanOr("BuffApplyAttempted", true);
+        smbs$buffLevel = input.getIntOr("BuffLevel", 0);
+        smbs$maxBuffLevel = input.getIntOr("MaxBuffLevel", 0);
+        smbs$shouldDropRewards = input.getBooleanOr("ShouldDropRewards", false);
+        smbs$buffApplyAttempted = input.getBooleanOr("BuffApplyAttempted", true);
     }
     //?}
 }

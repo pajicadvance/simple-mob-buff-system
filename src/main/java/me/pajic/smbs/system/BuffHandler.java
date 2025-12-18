@@ -4,13 +4,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedSet;
 import me.pajic.smbs.SMBS;
+import me.pajic.smbs.util.AttachmentUtil;
 import me.pajic.smbs.util.MobExtension;
-import me.pajic.smbs.util.ZombieExtension;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.TagKey;
@@ -22,12 +22,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class BuffHandler {
     public static void applyBuffs(Mob mob, ServerLevelAccessor levelAccessor, DifficultyInstance difficulty) {
         RandomSource random = levelAccessor.getRandom();
         ((MobExtension) mob).smbs$setShouldDropRewards(true);
-        ResourceLocation mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
+        Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         Set<BuffEntry> possibleBuffEntries = new HashSet<>();
 		SMBS.CONFIG.buffRules.forEach((buffEntry, mobTypeKeys) -> {
             if (mobTypeKeys.contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
@@ -79,7 +79,7 @@ public class BuffHandler {
         ((MobExtension) mob).smbs$increaseMaxBuffLevel(increase);
         // Increase current buff level if mob is a zombie leader
         boolean isLeader = false;
-        if (mob instanceof Zombie zombie && ((ZombieExtension) zombie).smbs$isLeader()) {
+        if (mob instanceof Zombie zombie && AttachmentUtil.isLeader(zombie)) {
             ((MobExtension) mob).smbs$increaseBuffLevel(6);
             isLeader = true;
         }
@@ -107,9 +107,9 @@ public class BuffHandler {
      * @param level The current server world.
      */
     public static void dropRewards(Mob mob, int lastHurtByPlayerTime, ServerLevel level) {
-        if (((MobExtension) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (((MobExtension) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && mobsDropLoot(level)) {
             // Determine max possible buff level
-            ResourceLocation mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
+            Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
             Set<BuffEntry> possibleBuffEntries = new HashSet<>();
 			SMBS.CONFIG.buffRules.forEach((buffEntry, mobTypeKeys) -> {
                 if (mobTypeKeys.contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
@@ -193,7 +193,7 @@ public class BuffHandler {
         return buffs;
     }
 
-    private static void addBuffs(Object2IntArrayMap<Holder<MobEffect>> buffs, ValidatedMap<ResourceLocation, Integer> addition) {
+    private static void addBuffs(Object2IntArrayMap<Holder<MobEffect>> buffs, ValidatedMap<Identifier, Integer> addition) {
         addition.forEach((rl, i) -> buffs.put(
                 BuiltInRegistries.MOB_EFFECT./*? if < 1.21.8 {*//*getHolder*//*?} else {*/get/*?}*/(rl).orElseThrow(), i.intValue())
         );
@@ -209,8 +209,8 @@ public class BuffHandler {
         Set<Item> items = new HashSet<>();
         Set<TagKey<Item>> itemTags = new HashSet<>();
         keys.forEach(string -> {
-            if (string.startsWith("#")) itemTags.add(TagKey.create(Registries.ITEM, ResourceLocation.parse(string.substring(1))));
-            else items.add(BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(string)).orElseThrow());
+            if (string.startsWith("#")) itemTags.add(TagKey.create(Registries.ITEM, Identifier.parse(string.substring(1))));
+            else items.add(BuiltInRegistries.ITEM.getOptional(Identifier.parse(string)).orElseThrow());
         });
         return items.contains(stack.getItem()) ||
                 itemTags.stream().anyMatch(itemTag -> BuiltInRegistries.ITEM
@@ -229,6 +229,13 @@ public class BuffHandler {
         };
         *///?}
     }
+
+	private static boolean mobsDropLoot(ServerLevel level) {
+		//? if < 1.21.11
+		//return level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT);
+		//? if >= 1.21.11
+		return level.getGameRules().get(GameRules.MOB_DROPS);
+	}
 
     private static boolean isMeleeWeapon(ItemStack stack) {
         return weaponMatches(stack, SMBS.CONFIG.meleeWeapons);

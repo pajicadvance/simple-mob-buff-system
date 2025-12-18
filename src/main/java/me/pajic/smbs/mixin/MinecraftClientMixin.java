@@ -14,10 +14,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftClientMixin {
 
 	@Inject(
-			method = "updateLevelInEngines",
+			//? if < 1.21.11
+			//method = "updateLevelInEngines",
+			//? if >= 1.21.11
+			method = "updateLevelInEngines(Lnet/minecraft/client/multiplayer/ClientLevel;Z)V",
 			at = @At("TAIL")
 	)
-	private void afterClientWorldChange(ClientLevel level, CallbackInfo ci) {
+	private void afterClientWorldChange(ClientLevel clientLevel, /*? if >= 1.21.11 {*/boolean bl,/*?}*/ CallbackInfo ci) {
 		ItemSuggestions.update();
 	}
 }

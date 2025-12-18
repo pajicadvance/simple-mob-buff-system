@@ -12,7 +12,7 @@ import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedInt;
 import me.pajic.smbs.util.Buffs;
 import me.pajic.smbs.util.ItemSuggestions;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Set;
@@ -22,13 +22,13 @@ public class BuffEntry implements Walkable {
     @Translation(prefix = "smbs.config")
     public ValidatedEnum<BuffSetType> buffSetType;
     @Translation(prefix = "smbs.config")
-    public ValidatedMap<ResourceLocation, Integer> customBuffs;
+    public ValidatedMap<Identifier, Integer> customBuffs;
     @Translation(prefix = "smbs.config")
     public ValidatedEnum<WeaponType> weaponType;
     @Translation(prefix = "smbs.config")
     public ValidatedSet<String> customWeapons;
 
-    public BuffEntry(BuffSetType buffSetType, Map<ResourceLocation, Integer> customBuffs, WeaponType weaponType, Set<String> customWeapons) {
+    public BuffEntry(BuffSetType buffSetType, Map<Identifier, Integer> customBuffs, WeaponType weaponType, Set<String> customWeapons) {
         this.buffSetType = new ValidatedEnum<>(buffSetType);
         this.customBuffs = (new ValidatedMap.Builder())
                 .keyHandler(ValidatedIdentifier

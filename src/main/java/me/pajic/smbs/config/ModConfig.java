@@ -21,7 +21,7 @@ import me.pajic.smbs.util.Buffs;
 import me.pajic.smbs.util.ItemSuggestions;
 import me.pajic.smbs.util.Mobs;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class ModConfig extends Config {
     public ValidatedBoolean onlyBuffedMobsSpreadSculk = new ValidatedBoolean(false);
 
     @BlockArray
-    public ValidatedMap<BuffEntry, Set<ResourceLocation>> buffRules = (new ValidatedMap.Builder())
+    public ValidatedMap<BuffEntry, Set<Identifier>> buffRules = (new ValidatedMap.Builder())
             .keyHandler(new ValidatedAny<>(new BuffEntry()))
             .valueHandler(ValidatedIdentifier
 					.ofRegistry(
@@ -131,7 +131,7 @@ public class ModConfig extends Config {
             ))
             .build();
 
-    public ValidatedMap<ResourceLocation, Integer> defaultMeleeBuffs = (new ValidatedMap.Builder())
+    public ValidatedMap<Identifier, Integer> defaultMeleeBuffs = (new ValidatedMap.Builder())
             .keyHandler(ValidatedIdentifier
 					.ofRegistry(
 							Buffs.HEALTH_BOOST,
@@ -149,7 +149,7 @@ public class ModConfig extends Config {
                     Map.entry(Buffs.KNOCKBACK_BOOST, 1)
             ))
             .build();
-    public ValidatedMap<ResourceLocation, Integer> defaultRangedBuffs = (new ValidatedMap.Builder())
+    public ValidatedMap<Identifier, Integer> defaultRangedBuffs = (new ValidatedMap.Builder())
             .keyHandler(ValidatedIdentifier
 					.ofRegistry(
 							Buffs.HEALTH_BOOST,

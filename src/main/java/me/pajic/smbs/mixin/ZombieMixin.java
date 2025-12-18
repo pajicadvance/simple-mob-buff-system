@@ -1,36 +1,21 @@
 package me.pajic.smbs.mixin;
 
 import me.pajic.smbs.SMBS;
-import me.pajic.smbs.util.ZombieExtension;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
+import me.pajic.smbs.util.AttachmentUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-//? if 1.21.1 {
-/*import net.minecraft.nbt.CompoundTag;
- *///?} else {
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//?}
 
 @Mixin(Zombie.class)
-public abstract class ZombieMixin extends Mob implements ZombieExtension {
+public abstract class ZombieMixin extends Mob {
     protected ZombieMixin(EntityType<? extends Mob> entityType, Level level) {
         super(entityType, level);
     }
-
-    @SuppressWarnings("WrongEntityDataParameterClass")
-    @Unique private static final EntityDataAccessor<Boolean> IS_LEADER = SynchedEntityData.defineId(
-            Zombie.class, EntityDataSerializers.BOOLEAN
-    );
 
     /**
      * @author pajic
@@ -41,62 +26,15 @@ public abstract class ZombieMixin extends Mob implements ZombieExtension {
             method = "handleAttributes",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/monster/Zombie;setCanBreakDoors(Z)V"
+                    target = "Lnet/minecraft/world/entity/monster/zombie/Zombie;setCanBreakDoors(Z)V"
             )
     )
     private void markLeader(float difficulty, CallbackInfo ci) {
         heal(getMaxHealth());
-        entityData.set(IS_LEADER, true);
+		AttachmentUtil.setLeader((Zombie) (Object) this);
         SMBS.debugLog(
                 "Leader {} at {} {} {}",
                 getName().getString(), getX(), getY(), getZ()
         );
     }
-
-    @Override
-    public boolean smbs$isLeader() {
-        return entityData.get(IS_LEADER);
-    }
-
-    @Inject(
-            method = "defineSynchedData",
-            at = @At("TAIL")
-    )
-    private void defineLeaderData(SynchedEntityData.Builder builder, CallbackInfo ci) {
-        builder.define(IS_LEADER, false);
-    }
-
-    //? if 1.21.1 {
-    /*@Inject(
-            method = "addAdditionalSaveData",
-            at = @At("TAIL")
-    )
-    private void saveLeaderData(CompoundTag compound, CallbackInfo ci) {
-        compound.putBoolean("IsLeader", entityData.get(IS_LEADER));
-    }
-
-    @Inject(
-            method = "readAdditionalSaveData",
-            at = @At("TAIL")
-    )
-    private void readLeaderData(CompoundTag compound, CallbackInfo ci) {
-        entityData.set(IS_LEADER, compound.getBoolean("IsLeader"));
-    }
-    *///?} else {
-    @Inject(
-            method = "addAdditionalSaveData",
-            at = @At("TAIL")
-    )
-    private void saveLeaderData(ValueOutput output, CallbackInfo ci) {
-        output.putBoolean("IsLeader", entityData.get(IS_LEADER));
-    }
-
-    @Inject(
-            method = "readAdditionalSaveData",
-            at = @At("TAIL")
-    )
-    private void readLeaderData(ValueInput input, CallbackInfo ci) {
-        entityData.set(IS_LEADER, input.getBooleanOr("IsLeader", false));
-    }
-    //?}
 }
