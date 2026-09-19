@@ -39,6 +39,13 @@ stonecutter parameters {
             replace("ValidatedIdentifier", "ValidatedIdentifier")
             replace("ResourceLocation", "Identifier")
             replace("net.ramixin.mixson_backport", "net.ramixin.mixson")
+            replace("net.minecraft.world.entity.monster.Spider", "net.minecraft.world.entity.monster.spider.Spider")
+            replace("net.minecraft.world.entity.monster.Zombie", "net.minecraft.world.entity.monster.zombie.Zombie")
+            replace("net.minecraft.Util", "net.minecraft.util.Util")
+            replace("net.minecraft.world.level.GameRules", "net.minecraft.world.level.gamerules.GameRules")
+            replace("Lnet/minecraft/world/entity/monster/Zombie", "Lnet/minecraft/world/entity/monster/zombie/Zombie")
+            replace("Lnet/minecraft/world/entity/monster/Spider", "Lnet/minecraft/world/entity/monster/spider/Spider")
+            replace("MobSpawnType", "EntitySpawnReason")
         }
     }
 }
