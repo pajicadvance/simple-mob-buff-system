@@ -179,9 +179,9 @@ public class ModConfig extends Config {
             .build();
 
     public ValidatedSet<String> meleeWeapons = new ValidatedString(
-            "", new AllowableStrings(ItemSuggestions.get()::contains, ItemSuggestions::get)
+            "", new AllowableStrings(ItemSuggestions::contains, ItemSuggestions::get)
     ).toSet("#c:tools/melee_weapon");
     public ValidatedSet<String> rangedWeapons = new ValidatedString(
-            "", new AllowableStrings(ItemSuggestions.get()::contains, ItemSuggestions::get)
+            "", new AllowableStrings(ItemSuggestions::contains, ItemSuggestions::get)
     ).toSet("#c:tools/ranged_weapon");
 }

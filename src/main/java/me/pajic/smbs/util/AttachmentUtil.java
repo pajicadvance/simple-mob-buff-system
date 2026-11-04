@@ -45,9 +45,9 @@ public class AttachmentUtil {
 
 	public static boolean isLeader(Entity entity) {
 		//? if fabric
-		return entity.getAttachedOrSet(LEADER, false);
+		return entity.getAttachedOrElse(LEADER, false);
 		//? if neoforge
-		//return entity.getData(LEADER);
+		//return entity.hasData(LEADER) && entity.getData(LEADER);
 	}
 
 	public static void setLeader(Entity entity) {

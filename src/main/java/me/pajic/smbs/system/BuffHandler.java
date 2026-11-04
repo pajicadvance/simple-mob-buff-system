@@ -23,7 +23,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.zombie.Zombie;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -31,9 +30,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 //? <26.1
 //import me.pajic.smbs.mixin.MobAccessor;
@@ -49,12 +46,10 @@ public class BuffHandler {
     public static void applyBuffs(Mob mob, ServerLevelAccessor levelAccessor, DifficultyInstance difficulty) {
         RandomSource random = levelAccessor.getRandom();
         ((MobExtension) mob).smbs$setShouldDropRewards(true);
-        Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-        Set<BuffEntry> possibleBuffEntries = new HashSet<>();
-		SMBS.CONFIG.buffRules.forEach((buffEntry) -> {
-            if (buffEntry.mobs.get().contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
-        });
-        Object2IntArrayMap<Holder<MobEffect>> buffs = getBuffs(possibleBuffEntries, mob, levelAccessor);
+        Object2IntArrayMap<Holder<MobEffect>> buffs = getBuffs(mob, levelAccessor);
+        ((MobExtension) mob).smbs$increaseMaxBuffLevel(sumLevels(buffs));
+        ((MobExtension) mob).smbs$setMaxBuffLevelFinal();
+        float baseMaxHealth = mob.getMaxHealth();
         if (roll(random, difficulty, SMBS.CONFIG.minSpawnChance.get(), SMBS.CONFIG.maxSpawnChance.get())) {
             // Apply buffs and increase buff level for each buff
             buffs.forEach((mobEffect, i) -> {
@@ -87,7 +82,7 @@ public class BuffHandler {
             isLeader = true;
         }
         // If mob has a health buff make sure it spawns with max possible health
-        if (mob.getMaxHealth() > 20.0F) mob.heal(mob.getMaxHealth());
+        if (mob.getMaxHealth() > baseMaxHealth) mob.heal(mob.getMaxHealth());
 
         if (((MobExtension) mob).smbs$getBuffLevel() > 0) SMBS.debugLog(
                 "Buff level {} mob {} at {} {} {}\nArmor bonus: {}\nLeader: {}",
@@ -112,21 +107,22 @@ public class BuffHandler {
     public static void dropRewards(Mob mob, int lastHurtByPlayerTime, ServerLevel level) {
         if (((MobExtension) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && mobsDropLoot(level)) {
             // Determine max possible buff level
-            Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-            Set<BuffEntry> possibleBuffEntries = new HashSet<>();
-			SMBS.CONFIG.buffRules.forEach((buffEntry) -> {
-                if (buffEntry.mobs.get().contains(mobTypeKey)) possibleBuffEntries.add(buffEntry);
-            });
-            getBuffs(possibleBuffEntries, mob, level).forEach((h, i) -> ((MobExtension) mob).smbs$increaseMaxBuffLevel(i));
+            if (!((MobExtension) mob).smbs$isMaxBuffLevelFinal()) {
+                ((MobExtension) mob).smbs$increaseMaxBuffLevel(sumLevels(getBuffs(mob, level)));
+                ((MobExtension) mob).smbs$setMaxBuffLevelFinal();
+            }
 
             int maxBuffLevel = ((MobExtension) mob).smbs$getMaxBuffLevel();
             int buffLevel = ((MobExtension) mob).smbs$getBuffLevel();
             int buffLevelThreshold = Math.round(maxBuffLevel * (SMBS.CONFIG.enchantedBookThresholdPercentage.get() / 100));
             // Increase equipment drop chances
-            if (SMBS.CONFIG.increasedEquipmentDropChancePerBuff.get()) for (EquipmentSlot slot : EquipmentSlot.values()) {
-                mob.setDropChance(slot, getDropChanceForSlot(mob, slot) * Mth.lerp(
-                        (float) buffLevel / maxBuffLevel, 1F, SMBS.CONFIG.maxEquipmentDropChanceIncrease.get()
-                ));
+            if (SMBS.CONFIG.increasedEquipmentDropChancePerBuff.get() && maxBuffLevel > 0 && buffLevel > 0) {
+                float multiplier = Mth.lerp(
+                        Mth.clamp((float) buffLevel / maxBuffLevel, 0F, 1F), 1F, SMBS.CONFIG.maxEquipmentDropChanceIncrease.get()
+                );
+                for (EquipmentSlot slot : EquipmentSlot.values()) {
+                    mob.setDropChance(slot, getDropChanceForSlot(mob, slot) * multiplier);
+                }
             }
             // Drop enchanted book
             if (buffLevel > buffLevelThreshold) {
@@ -155,10 +151,18 @@ public class BuffHandler {
         }
     }
 
-    private static Object2IntArrayMap<Holder<MobEffect>> getBuffs(Set<BuffEntry> possibleBuffEntries, Mob mob, ServerLevelAccessor levelAccessor) {
+    private static int sumLevels(Object2IntArrayMap<Holder<MobEffect>> buffs) {
+        int sum = 0;
+        for (int level : buffs.values()) sum += level;
+        return sum;
+    }
+
+    private static Object2IntArrayMap<Holder<MobEffect>> getBuffs(Mob mob, ServerLevelAccessor levelAccessor) {
         Object2IntArrayMap<Holder<MobEffect>> buffs = new Object2IntArrayMap<>();
+        Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         ItemStack weapon = getWeapon(mob);
-        possibleBuffEntries.forEach(buffEntry -> {
+        SMBS.CONFIG.buffRules.forEach(buffEntry -> {
+            if (!buffEntry.mobs.get().contains(mobTypeKey)) return;
             switch (buffEntry.buffSetType.get()) {
                 case WEAPON_BASED -> {
                     switch (buffEntry.weaponType.get()) {
@@ -197,11 +201,13 @@ public class BuffHandler {
     }
 
     private static void addBuffs(Object2IntArrayMap<Holder<MobEffect>> buffs, ValidatedMap<Identifier, Integer> addition, ServerLevelAccessor levelAccessor) {
-        addition.forEach((rl, i) -> buffs.put(
+        addition.forEach((rl, i) ->
                 //~ if <26.1 'lookupOrThrow' -> 'registryOrThrow'
                 //~ if <26.1 'get' -> 'getHolder'
-                levelAccessor.registryAccess().lookupOrThrow(Registries.MOB_EFFECT).get(rl).orElseThrow(), i.intValue()
-        ));
+                levelAccessor.registryAccess().lookupOrThrow(Registries.MOB_EFFECT).get(rl).ifPresent(
+                        holder -> buffs.mergeInt(holder, i, Math::max)
+                )
+        );
     }
 
     private static ItemStack getWeapon(Mob mob) {
@@ -211,13 +217,17 @@ public class BuffHandler {
     }
 
     private static boolean weaponMatches(ItemStack stack, ValidatedSet<String> keys) {
-        Set<Item> items = new HashSet<>();
-        Set<TagKey<Item>> itemTags = new HashSet<>();
-        keys.forEach(string -> {
-            if (string.startsWith("#")) itemTags.add(TagKey.create(Registries.ITEM, Identifier.parse(string.substring(1))));
-            else items.add(BuiltInRegistries.ITEM.getOptional(Identifier.parse(string)).orElseThrow());
-        });
-        return items.contains(stack.getItem()) || itemTags.stream().anyMatch(stack::is);
+        for (String key : keys) {
+            boolean isTag = key.startsWith("#");
+            Identifier id = Identifier.tryParse(isTag ? key.substring(1) : key);
+            if (id == null) continue;
+            if (isTag) {
+                if (stack.is(TagKey.create(Registries.ITEM, id))) return true;
+            } else if (BuiltInRegistries.ITEM.getOptional(id).map(stack::is).orElse(false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isMeleeWeapon(ItemStack stack) {

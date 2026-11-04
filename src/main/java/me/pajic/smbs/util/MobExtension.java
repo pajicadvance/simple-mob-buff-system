@@ -5,6 +5,8 @@ public interface MobExtension {
     void smbs$increaseBuffLevel(int increase);
     int smbs$getMaxBuffLevel();
     void smbs$increaseMaxBuffLevel(int increase);
+    boolean smbs$isMaxBuffLevelFinal();
+    void smbs$setMaxBuffLevelFinal();
     boolean smbs$getShouldDropRewards();
     void smbs$setShouldDropRewards(boolean shouldDropRewards);
 }

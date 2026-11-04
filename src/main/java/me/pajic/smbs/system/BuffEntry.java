@@ -43,7 +43,7 @@ public class BuffEntry implements Walkable {
                 .build();
         this.weaponType = new ValidatedEnum<>(weaponType);
         this.customWeapons = new ValidatedString(
-                "", new AllowableStrings(ItemSuggestions.get()::contains, ItemSuggestions::get)
+                "", new AllowableStrings(ItemSuggestions::contains, ItemSuggestions::get)
         ).toSet(customWeapons);
     }
 
@@ -66,7 +66,7 @@ public class BuffEntry implements Walkable {
                 .build();
         this.weaponType = new ValidatedEnum<>(WeaponType.ANY);
         this.customWeapons = new ValidatedString(
-                "", new AllowableStrings(ItemSuggestions.get()::contains, ItemSuggestions::get)
+                "", new AllowableStrings(ItemSuggestions::contains, ItemSuggestions::get)
         ).toSet();
     }
 }

@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 //? <26.1 {
 /*import net.minecraft.nbt.CompoundTag;
 *///?} else {
+import com.mojang.serialization.Codec;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 //?}
@@ -40,6 +41,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
     @Unique private final Mob smbs$thisMob = (Mob) (Object) this;
     @Unique private Boolean smbs$fromSpawner = null;
     @Unique private boolean smbs$buffApplyAttempted = false;
+    @Unique private boolean smbs$maxBuffLevelFinal = false;
 
     /**
      * @author pajic
@@ -109,6 +111,16 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
     }
 
     @Override
+    public boolean smbs$isMaxBuffLevelFinal() {
+        return smbs$maxBuffLevelFinal;
+    }
+
+    @Override
+    public void smbs$setMaxBuffLevelFinal() {
+        smbs$maxBuffLevelFinal = true;
+    }
+
+    @Override
     public boolean smbs$getShouldDropRewards() {
         return smbs$shouldDropRewards;
     }
@@ -128,6 +140,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         compound.putInt("MaxBuffLevel", smbs$maxBuffLevel);
         compound.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
         compound.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
+        compound.putBoolean("MaxBuffLevelFinal", smbs$maxBuffLevelFinal);
+        if (!smbs$buffApplyAttempted && smbs$fromSpawner != null) compound.putBoolean("FromSpawner", smbs$fromSpawner);
     }
 
     @Inject(
@@ -139,6 +153,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
 		smbs$maxBuffLevel = compound.getInt("MaxBuffLevel");
 		smbs$shouldDropRewards = compound.getBoolean("ShouldDropRewards");
 		smbs$buffApplyAttempted = compound.getBoolean("BuffApplyAttempted");
+		smbs$maxBuffLevelFinal = compound.getBoolean("MaxBuffLevelFinal");
+		if (compound.contains("FromSpawner")) smbs$fromSpawner = compound.getBoolean("FromSpawner");
     }
     *///?} else {
     @Inject(
@@ -150,6 +166,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         output.putInt("MaxBuffLevel", smbs$maxBuffLevel);
         output.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
         output.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
+        output.putBoolean("MaxBuffLevelFinal", smbs$maxBuffLevelFinal);
+        if (!smbs$buffApplyAttempted) output.storeNullable("FromSpawner", Codec.BOOL, smbs$fromSpawner);
     }
 
     @Inject(
@@ -161,6 +179,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         smbs$maxBuffLevel = input.getIntOr("MaxBuffLevel", 0);
         smbs$shouldDropRewards = input.getBooleanOr("ShouldDropRewards", false);
         smbs$buffApplyAttempted = input.getBooleanOr("BuffApplyAttempted", true);
+        smbs$maxBuffLevelFinal = input.getBooleanOr("MaxBuffLevelFinal", false);
+        input.read("FromSpawner", Codec.BOOL).ifPresent(fromSpawner -> smbs$fromSpawner = fromSpawner);
     }
     //?}
 }
