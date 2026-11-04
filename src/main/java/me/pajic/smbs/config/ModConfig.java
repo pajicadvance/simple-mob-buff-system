@@ -7,7 +7,6 @@ import me.fzzyhmstrs.fzzy_config.validation.ValidatedField;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedList;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedSet;
-import me.fzzyhmstrs.fzzy_config.validation.minecraft.ValidatedIdentifier;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedAny;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedBoolean;
 import me.fzzyhmstrs.fzzy_config.validation.misc.ValidatedString;
@@ -21,7 +20,6 @@ import me.pajic.smbs.system.WeaponType;
 import me.pajic.smbs.util.Buffs;
 import me.pajic.smbs.util.ItemSuggestions;
 import me.pajic.smbs.util.Mobs;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
@@ -143,12 +141,7 @@ public class ModConfig extends Config {
 	);
 
     public ValidatedMap<Identifier, Integer> defaultMeleeBuffs = (new ValidatedMap.Builder())
-            .keyHandler(ValidatedIdentifier
-					.ofRegistry(
-							Buffs.HEALTH_BOOST,
-							BuiltInRegistries.MOB_EFFECT
-					)
-			)
+            .keyHandler(Buffs.validatedKey())
             .valueHandler(ValidatedNumber.withIncrement(new ValidatedInt(
                     1, Integer.MAX_VALUE, 1
             ), 1))
@@ -161,12 +154,7 @@ public class ModConfig extends Config {
             ))
             .build();
     public ValidatedMap<Identifier, Integer> defaultRangedBuffs = (new ValidatedMap.Builder())
-            .keyHandler(ValidatedIdentifier
-					.ofRegistry(
-							Buffs.HEALTH_BOOST,
-							BuiltInRegistries.MOB_EFFECT
-					)
-			)
+            .keyHandler(Buffs.validatedKey())
             .valueHandler(ValidatedNumber.withIncrement(new ValidatedInt(
                     1, Integer.MAX_VALUE, 1
             ), 1))

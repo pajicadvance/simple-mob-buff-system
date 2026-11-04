@@ -51,10 +51,5 @@
   "smbs.weaponType.RANGED": "Ranged weapons",
   "smbs.weaponType.RANGED.desc": "Checks for weapons from the Ranged weapons list in the config.",
   "smbs.weaponType.CUSTOM": "Custom",
-  "smbs.weaponType.CUSTOM.desc": "Checks for weapons from the Custom weapons list below.",
-
-  "effect.smbs.attack_knockback": "Knockback Boost",
-  "effect.smbs.knockback_resist": "Knockback Resistance",
-  "effect.smbs.follow_range": "Farsight",
-  "effect.smbs.scale": "Size Boost"
+  "smbs.weaponType.CUSTOM.desc": "Checks for weapons from the Custom weapons list below."
 }

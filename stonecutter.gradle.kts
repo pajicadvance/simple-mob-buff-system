@@ -37,6 +37,7 @@ stonecutter parameters {
         filters.exclude("**/*.ct")
         string(current.parsed >= "1.21.11") {
             replace("ValidatedIdentifier", "ValidatedIdentifier")
+            replace("AllowableIdentifiers", "AllowableIdentifiers")
             replace("ResourceLocation", "Identifier")
             replace("net.ramixin.mixson_backport", "net.ramixin.mixson")
             replace("net.minecraft.world.entity.monster.Spider", "net.minecraft.world.entity.monster.spider.Spider")

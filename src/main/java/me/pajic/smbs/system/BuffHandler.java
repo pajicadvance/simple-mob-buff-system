@@ -5,6 +5,7 @@ import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedMap;
 import me.fzzyhmstrs.fzzy_config.validation.collection.ValidatedSet;
 import me.pajic.smbs.SMBS;
 import me.pajic.smbs.util.AttachmentUtil;
+import me.pajic.smbs.util.Buffs;
 import me.pajic.smbs.util.MobExtension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,7 +18,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //? <26.1
 //import me.pajic.smbs.mixin.MobAccessor;
@@ -46,21 +47,20 @@ public class BuffHandler {
     public static void applyBuffs(Mob mob, ServerLevelAccessor levelAccessor, DifficultyInstance difficulty) {
         RandomSource random = levelAccessor.getRandom();
         ((MobExtension) mob).smbs$setShouldDropRewards(true);
-        Object2IntArrayMap<Holder<MobEffect>> buffs = getBuffs(mob, levelAccessor);
+        Object2IntArrayMap<Identifier> buffs = getBuffs(mob);
         ((MobExtension) mob).smbs$increaseMaxBuffLevel(sumLevels(buffs));
         ((MobExtension) mob).smbs$setMaxBuffLevelFinal();
         float baseMaxHealth = mob.getMaxHealth();
         if (roll(random, difficulty, SMBS.CONFIG.minSpawnChance.get(), SMBS.CONFIG.maxSpawnChance.get())) {
             // Apply buffs and increase buff level for each buff
-            buffs.forEach((mobEffect, i) -> {
+            buffs.forEach((buff, i) -> {
                 if (roll(random, difficulty, SMBS.CONFIG.minChancePerBuff.get(), SMBS.CONFIG.maxChancePerBuff.get())) {
                     int maxAmplifier = i - 1;
                     int amplifier = Mth.clamp(
                             Math.round(difficulty.getSpecialMultiplier() * random.nextFloat() * maxAmplifier * maxAmplifier),
                             0, maxAmplifier
                     );
-                    mob.addEffect(new MobEffectInstance(mobEffect, -1, amplifier));
-                    ((MobExtension) mob).smbs$increaseBuffLevel(1 + amplifier);
+                    if (applyBuff(mob, buff, amplifier)) ((MobExtension) mob).smbs$increaseBuffLevel(1 + amplifier);
                 }
             });
         }
@@ -108,7 +108,7 @@ public class BuffHandler {
         if (((MobExtension) mob).smbs$getShouldDropRewards() && lastHurtByPlayerTime > 0 && mobsDropLoot(level)) {
             // Determine max possible buff level
             if (!((MobExtension) mob).smbs$isMaxBuffLevelFinal()) {
-                ((MobExtension) mob).smbs$increaseMaxBuffLevel(sumLevels(getBuffs(mob, level)));
+                ((MobExtension) mob).smbs$increaseMaxBuffLevel(sumLevels(getBuffs(mob)));
                 ((MobExtension) mob).smbs$setMaxBuffLevelFinal();
             }
 
@@ -151,14 +151,23 @@ public class BuffHandler {
         }
     }
 
-    private static int sumLevels(Object2IntArrayMap<Holder<MobEffect>> buffs) {
+    private static int sumLevels(Object2IntArrayMap<Identifier> buffs) {
         int sum = 0;
         for (int level : buffs.values()) sum += level;
         return sum;
     }
 
-    private static Object2IntArrayMap<Holder<MobEffect>> getBuffs(Mob mob, ServerLevelAccessor levelAccessor) {
-        Object2IntArrayMap<Holder<MobEffect>> buffs = new Object2IntArrayMap<>();
+    private static boolean applyBuff(Mob mob, Identifier buff, int amplifier) {
+        Optional<StatBoosts> statBoost = StatBoosts.get(buff);
+        return statBoost.map(statBoosts -> statBoosts.apply(mob, buff, amplifier))
+                //~ if <26.1 'MOB_EFFECT.get' -> 'MOB_EFFECT.getHolder'
+                .orElseGet(() -> BuiltInRegistries.MOB_EFFECT.get(buff)
+                .map(effect -> mob.addEffect(new MobEffectInstance(effect, -1, amplifier)))
+                .orElse(false));
+    }
+
+    private static Object2IntArrayMap<Identifier> getBuffs(Mob mob) {
+        Object2IntArrayMap<Identifier> buffs = new Object2IntArrayMap<>();
         Identifier mobTypeKey = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
         ItemStack weapon = getWeapon(mob);
         SMBS.CONFIG.buffRules.forEach(buffEntry -> {
@@ -167,14 +176,14 @@ public class BuffHandler {
                 case WEAPON_BASED -> {
                     switch (buffEntry.weaponType.get()) {
                         case ANY -> {
-                            if (isRangedWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultRangedBuffs, levelAccessor);
-                            else addBuffs(buffs, SMBS.CONFIG.defaultMeleeBuffs, levelAccessor);
+                            if (isRangedWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultRangedBuffs);
+                            else addBuffs(buffs, SMBS.CONFIG.defaultMeleeBuffs);
                         }
                         case MELEE -> {
-                            if (isMeleeWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultMeleeBuffs, levelAccessor);
+                            if (isMeleeWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultMeleeBuffs);
                         }
                         case RANGED -> {
-                            if (isRangedWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultRangedBuffs, levelAccessor);
+                            if (isRangedWeapon(weapon)) addBuffs(buffs, SMBS.CONFIG.defaultRangedBuffs);
                         }
                         case CUSTOM -> {
 
@@ -183,15 +192,15 @@ public class BuffHandler {
                 }
                 case CUSTOM -> {
                     switch (buffEntry.weaponType.get()) {
-                        case ANY -> addBuffs(buffs, buffEntry.customBuffs, levelAccessor);
+                        case ANY -> addBuffs(buffs, buffEntry.customBuffs);
                         case MELEE -> {
-                            if (isMeleeWeapon(weapon)) addBuffs(buffs, buffEntry.customBuffs, levelAccessor);
+                            if (isMeleeWeapon(weapon)) addBuffs(buffs, buffEntry.customBuffs);
                         }
                         case RANGED -> {
-                            if (isRangedWeapon(weapon)) addBuffs(buffs, buffEntry.customBuffs, levelAccessor);
+                            if (isRangedWeapon(weapon)) addBuffs(buffs, buffEntry.customBuffs);
                         }
                         case CUSTOM -> {
-                            if (weaponMatches(weapon, buffEntry.customWeapons)) addBuffs(buffs, buffEntry.customBuffs, levelAccessor);
+                            if (weaponMatches(weapon, buffEntry.customWeapons)) addBuffs(buffs, buffEntry.customBuffs);
                         }
                     }
                 }
@@ -200,14 +209,10 @@ public class BuffHandler {
         return buffs;
     }
 
-    private static void addBuffs(Object2IntArrayMap<Holder<MobEffect>> buffs, ValidatedMap<Identifier, Integer> addition, ServerLevelAccessor levelAccessor) {
-        addition.forEach((rl, i) ->
-                //~ if <26.1 'lookupOrThrow' -> 'registryOrThrow'
-                //~ if <26.1 'get' -> 'getHolder'
-                levelAccessor.registryAccess().lookupOrThrow(Registries.MOB_EFFECT).get(rl).ifPresent(
-                        holder -> buffs.mergeInt(holder, i, Math::max)
-                )
-        );
+    private static void addBuffs(Object2IntArrayMap<Identifier> buffs, ValidatedMap<Identifier, Integer> addition) {
+        addition.forEach((buff, i) -> {
+            if (Buffs.isValid(buff)) buffs.mergeInt(buff, i, Math::max);
+        });
     }
 
     private static ItemStack getWeapon(Mob mob) {

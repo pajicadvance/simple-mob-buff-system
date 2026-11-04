@@ -32,12 +32,7 @@ public class BuffEntry implements Walkable {
 		this.mobs = ValidatedIdentifier.ofRegistry(Mobs.CREEPER, BuiltInRegistries.ENTITY_TYPE).toSet(mobs);
         this.buffSetType = new ValidatedEnum<>(buffSetType);
         this.customBuffs = (new ValidatedMap.Builder())
-                .keyHandler(ValidatedIdentifier
-						.ofRegistry(
-								Buffs.HEALTH_BOOST,
-								BuiltInRegistries.MOB_EFFECT
-						)
-				)
+                .keyHandler(Buffs.validatedKey())
                 .valueHandler(new ValidatedInt(1, Integer.MAX_VALUE, 1))
                 .defaults(customBuffs)
                 .build();
@@ -56,12 +51,7 @@ public class BuffEntry implements Walkable {
 		this.mobs = ValidatedIdentifier.ofRegistry(Mobs.CREEPER, BuiltInRegistries.ENTITY_TYPE).toSet();
         this.buffSetType = new ValidatedEnum<>(BuffSetType.WEAPON_BASED);
         this.customBuffs = (new ValidatedMap.Builder())
-                .keyHandler(ValidatedIdentifier
-						.ofRegistry(
-								Buffs.HEALTH_BOOST,
-								BuiltInRegistries.MOB_EFFECT
-						)
-				)
+                .keyHandler(Buffs.validatedKey())
                 .valueHandler(new ValidatedInt(1, Integer.MAX_VALUE, 1))
                 .build();
         this.weaponType = new ValidatedEnum<>(WeaponType.ANY);

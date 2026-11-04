@@ -3,10 +3,8 @@ package me.pajic.smbs.platform.neoforge;
 //? neoforge {
 
 /*import me.pajic.smbs.SMBS;
-import me.pajic.smbs.system.StatBoostEffects;
 import me.pajic.smbs.util.AttachmentUtil;
-import me.pajic.smbs.util.Buffs;
-import me.pajic.smbs.util.ItemSuggestions;import net.minecraft.core.registries.Registries;
+import me.pajic.smbs.util.ItemSuggestions;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -27,20 +25,6 @@ public class NeoforgeEntrypoint {
     @SubscribeEvent
     private static void onLevelLoad(LevelEvent.Load event) {
         ItemSuggestions.update(event.getLevel());
-    }
-
-    @SubscribeEvent
-    private static void initRegistry(RegisterEvent event) {
-        StatBoostEffects.init();
-        event.register(
-                Registries.MOB_EFFECT,
-                registry -> {
-                    registry.register(Buffs.KNOCKBACK_RESISTANCE, StatBoostEffects.KNOCKBACK_RESISTANCE);
-                    registry.register(Buffs.KNOCKBACK_BOOST, StatBoostEffects.KNOCKBACK_BOOST);
-                    registry.register(Buffs.FARSIGHT, StatBoostEffects.FARSIGHT);
-                    registry.register(Buffs.SIZE_BOOST, StatBoostEffects.SIZE_BOOST);
-                }
-        );
     }
 
     @SubscribeEvent
