@@ -35,6 +35,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+//? <26.1
+//import me.pajic.smbs.mixin.MobAccessor;
+
 public class BuffHandler {
 
     /**
@@ -230,9 +233,9 @@ public class BuffHandler {
         return mob.getDropChances().byEquipment(slot);
         //?} else {
         /*return switch (slot.getType()) {
-            case HAND -> mob.handDropChances[slot.getIndex()];
-            case HUMANOID_ARMOR -> mob.armorDropChances[slot.getIndex()];
-            case ANIMAL_ARMOR -> mob.bodyArmorDropChance;
+            case HAND -> ((MobAccessor) mob).smbs$getHandDropChances()[slot.getIndex()];
+            case HUMANOID_ARMOR -> ((MobAccessor) mob).smbs$getArmorDropChances()[slot.getIndex()];
+            case ANIMAL_ARMOR -> ((MobAccessor) mob).smbs$getBodyArmorDropChance();
         };
         *///?}
     }

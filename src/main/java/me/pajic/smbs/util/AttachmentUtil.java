@@ -29,7 +29,7 @@ public class AttachmentUtil {
 	);
 	//?} else {
 	/*public static final AttachmentType<Boolean> LEADER = AttachmentType.builder(() -> false)
-			.serialize(Codec.BOOL.fieldOf("leader")/^? <26.1 {^//^.codec()^//^?}^/)
+			.serialize(Codec.BOOL.fieldOf("leader")/^? <26.1 {^/.codec()/^?}^/)
 			.sync(new AttachmentSyncHandler<>() {
 				@Override
 				public void write(@NotNull RegistryFriendlyByteBuf buf, @NotNull Boolean attachment, boolean initialSync) {

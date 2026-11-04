@@ -13,7 +13,7 @@ pluginManagement {
         kotlin("jvm") version "2.3.21"
         id("com.google.devtools.ksp") version "2.3.10"
         id("dev.kikugie.fletching-table.fabric") version "0.1.0-alpha.22"
-        id("me.modmuss50.mod-publish-plugin") version "2.1.1"
+        id("me.modmuss50.mod-publish-plugin") version "2.2.1"
     }
 }
 
@@ -31,7 +31,7 @@ stonecutter {
         match("1.21.1", "fabric", "neoforge")
         match("26.1", "fabric", "neoforge", version = "26.1.2")
         match("26.2", "fabric", "neoforge")
-        match("26.3", "fabric")
+        match("26.3", "fabric", "neoforge")
         vcsVersion = "26.3-fabric"
     }
 }
