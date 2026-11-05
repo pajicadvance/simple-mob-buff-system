@@ -31,7 +31,7 @@ public abstract class ZombieMixin extends Mob {
             )
     )
     private void markLeader(CallbackInfo ci) {
-        heal(getMaxHealth());
+        if (SMBS.CONFIG.misc.healZombieLeaders.get()) heal(getMaxHealth());
 		AttachmentUtil.setLeader((Zombie) (Object) this);
         SMBS.debugLog(
                 "Leader {} at {} {} {}",

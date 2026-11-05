@@ -3,6 +3,7 @@ package me.pajic.smbs.mixin;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.pajic.smbs.SMBS;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.monster.spider.Spider;
@@ -24,7 +25,7 @@ public class SpiderMixin {
             )
     )
     private boolean disableVanillaBuff(Spider.SpiderEffectsGroupData instance, RandomSource random) {
-        return false;
+        return !SMBS.CONFIG.misc.disableVanillaSpiderEffects.get();
     }
 
     /**
@@ -39,6 +40,6 @@ public class SpiderMixin {
             )
     )
     private boolean disableVanillaBuff(Spider instance, MobEffectInstance mobEffectInstance, Operation<Boolean> original) {
-        return false;
+        return !SMBS.CONFIG.misc.disableVanillaSpiderEffects.get() && original.call(instance, mobEffectInstance);
     }
 }

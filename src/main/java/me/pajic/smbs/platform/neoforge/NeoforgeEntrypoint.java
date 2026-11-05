@@ -4,7 +4,7 @@ package me.pajic.smbs.platform.neoforge;
 
 /*import me.pajic.smbs.SMBS;
 import me.pajic.smbs.util.AttachmentUtil;
-import me.pajic.smbs.util.ItemSuggestions;
+import me.pajic.smbs.util.RegistrySuggestions;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
@@ -24,7 +24,7 @@ public class NeoforgeEntrypoint {
 
     @SubscribeEvent
     private static void onLevelLoad(LevelEvent.Load event) {
-        ItemSuggestions.update(event.getLevel());
+        RegistrySuggestions.updateAll(event.getLevel());
     }
 
     @SubscribeEvent

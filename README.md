@@ -18,7 +18,7 @@ The mod uses [Fzzy Config](https://modrinth.com/mod/fzzy-config) to provide a re
 
 ## How it works
 
-Each mob has a set of buffs assigned to it, and any or all of those buffs can be applied to the mob once it spawns. Each buff in the set also has a max level assigned to it, and the mob can get any level of the buff from 1 to max. By default, mobs spawned via spawners are prevented from being buffed due to balance concerns (you can remove this restriction in the config).
+Buffs are assigned to mobs through rules. Each rule lists the mobs it applies to (entity IDs or entity tags), an optional weapon the mob needs to spawn with, and the buff set it applies. A buff set is a named group of buffs, each with a max level, and the mob can get any level of a buff from 1 to max. A rule can also have a separate buff set which is used instead when the mob spawns with a ranged weapon. By default, mobs spawned via spawners are prevented from being buffed due to balance concerns (you can change which spawn sources are allowed in the config).
 
 When a mob is killed, it drops additional rewards based on its "buff level". The buff level is determined based on how strong the mob is - the amount of buffs it has and their levels, and the amount of enchanted equipment it's wearing. Zombie-type mobs will have a higher buff level if they're leaders.
 
@@ -26,14 +26,17 @@ The additional rewards are the following:
 - Additional XP orbs based on how high the buff level is, each orb granting 3 XP points by default.
 - If the buff level surpasses a percentage of the maximum possible buff level for the mob (default 66%), an enchanted book with a random quality depending on how much the buff level surpassed the threshold.
 
-Most mobs will receive buffs from either the default melee buff set or the default ranged buff set depending on the type of weapon they spawn with, whereas certain mobs will receive buffs from buff sets unique to them. The two default sets can be modified in the mod configuration.
+By default, most mobs receive buffs from either the melee buff set or the ranged buff set depending on the type of weapon they spawn with, whereas certain mobs receive buffs from buff sets unique to them. All buff sets and rules can be modified in the mod configuration.
 
-Custom rules can be defined to assign any buff to any mob, using any items as a condition. Any status effect, mob and item can be used in these rules, including ones added by other mods.
+Any status effect, mob and item can be used in buff sets and rules, including ones added by other mods.
 
 Buff application works the following way:
-- When a mob spawns, the system first determines if it's going to try to apply any buffs to it in the first place. The chance for this ranges from a minimum chance (default 10%) at local difficulty 2 and below to a maximum chance (default 25%) at the highest possible local difficulty (6.75).
-- If this check passes, the system tries to apply each buff applicable to the mob one by one. The chance for each buff to be applied ranges from a minimum chance (default 20%) at local difficulty 2 and below to a maximum chance (default 75%) at the highest possible local difficulty (6.75).
-- The level of each buff is determined by the following formula: `specialDifficultyMultiplier * randomNumber * maxLevel ^ 2`, limited from 1 to `maxLevel`, where
-    - `specialDifficultyMultiplier` is a number from 0 to 1 based on the current local difficulty (0 at local difficulty 2 and below, 1 at local difficulty 4 and above)
+- When a mob spawns, each rule matching the mob first determines if it's going to try to apply its buffs in the first place. The chance for this is set per rule, and ranges from a minimum chance (default 10%) at local difficulty 2 and below to a maximum chance (default 25%) at the highest possible local difficulty (6.75).
+- If this check passes, the rule tries to apply each buff from its buff set one by one. The chance for each buff to be applied is also set per rule, and ranges from a minimum chance (default 20%) at local difficulty 2 and below to a maximum chance (default 75%) at the highest possible local difficulty (6.75).
+- If several rules give the mob the same buff, the highest level is kept.
+- The level of each buff is determined by the following formula: `difficultyMultiplier * randomNumber * maxLevel ^ 2`, limited from 1 to `maxLevel`, where
+    - `difficultyMultiplier` is a number from 0 to 1 based on the current local difficulty (0 at local difficulty 2 and below, 1 at local difficulty 4 and above)
     - `randomNumber` is a randomly generated number from 0 to 1
     - `maxLevel` is the maximum level of the buff
+
+The local difficulty ranges and the exponent in the level formula can be changed in the config.

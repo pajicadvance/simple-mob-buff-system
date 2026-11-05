@@ -20,6 +20,6 @@ public class SMBS {
     }
 
     public static void debugLog(String message, Object ... args) {
-        if (MultiLoaderUtil.INSTANCE.isDevEnv()) LOGGER.info(message, args);
+        if (MultiLoaderUtil.INSTANCE.isDevEnv() || (CONFIG != null && CONFIG.misc.debugLogging.get())) LOGGER.info(message, args);
     }
 }

@@ -1,5 +1,6 @@
 package me.pajic.smbs.mixin;
 
+import me.pajic.smbs.SMBS;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,9 +25,10 @@ public class AreaEffectCloudMixin {
             )
     )
     private MobEffectInstance preventInfiniteEffectTransfer(MobEffectInstance effectInstance) {
-        return effectInstance.isInfiniteDuration() ? new MobEffectInstance(
+        int durationCap = SMBS.CONFIG.misc.cloudEffectDurationCap.get();
+        return durationCap >= 0 && effectInstance.isInfiniteDuration() ? new MobEffectInstance(
                 effectInstance.getEffect(),
-                200,
+                durationCap,
                 effectInstance.getAmplifier(),
                 effectInstance.isAmbient(),
                 effectInstance.isVisible()

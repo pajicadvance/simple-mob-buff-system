@@ -1,0 +1,29 @@
+- The mod is now fully server-side and is no longer required on the client:
+  - Knockback Resistance, Knockback Boost, Farsight and Size Boost are no longer status effects, and are applied as permanent attribute modifiers instead. They keep their IDs, so they can still be used in buff sets.
+  - These buffs still emit particles, each in its own color, which are visible to players without the mod.
+  - Mobs saved with these buffs as status effects in older versions will lose them when loaded.
+- Completely reworked the config. The old config is not carried over, and the new defaults match the previous behavior:
+  - The config is now split into sections: Spawning, Rewards, Weapons, Buff sets, Rules, Stat boosts and Miscellaneous.
+  - Buffs are now grouped into named buff sets, which any number of rules can use. The default melee and ranged buffs are now regular buff sets.
+  - Rules can now use a separate buff set when the mob holds a ranged weapon, replacing the Weapon-based buff set type.
+  - Spawn and buff chances are now set per rule. Each rule matching a mob rolls separately, and the highest level of a buff rolled by multiple rules is kept.
+  - Rules can now target entity tags, and have an optional name shown in the rule list.
+  - Added a setting for selecting which spawn sources can receive buffs, replacing the spawner toggle.
+  - Added a dimension blacklist/whitelist.
+  - Added a limit on how many buffs a mob can receive.
+  - Added settings for the local difficulty ranges used for chance and level scaling, and for the level formula exponent.
+  - Added settings for the zombie leader and enchanted equipment buff level bonuses, and whether enchanted equipment counts toward the enchanted book threshold.
+  - Added toggles for XP and enchanted book rewards, and settings for the book's enchantment tag and bonus levels.
+  - Added settings for the strength and particle color of each stat boost, and a toggle for their particles.
+  - Added toggles for disabling vanilla spider effects and healing zombie leaders, and a setting for the effect cloud duration cap.
+  - Added a debug logging toggle.
+  - Buff max levels are now limited to 255.
+- Fixed killing a mob without buffs deleting equipment that should always drop, such as horse armor, wolf armor and saddles.
+- Fixed mobs generated with structures, such as bastion piglins, never receiving buffs.
+- Fixed mobs with low base health, such as cave spiders and small slimes, spawning without full health when given Health Boost.
+- Fixed a crash when a weapon list or buff set contains an item or effect that doesn't exist.
+- Fixed a mob's maximum buff level being calculated from its equipment and config at death instead of at spawn.
+- Fixed the max level of a buff given by multiple rules being picked at random.
+- Effect clouds from creepers no longer give any entity permanent effects, instead of only players.
+- Zombie leader data is no longer sent to clients or added to every zombie.
+- Fixed a rare crash caused by item suggestions being updated from multiple threads.

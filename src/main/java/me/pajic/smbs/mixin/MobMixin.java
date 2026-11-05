@@ -1,7 +1,7 @@
 package me.pajic.smbs.mixin;
 
-import me.pajic.smbs.SMBS;
 import me.pajic.smbs.system.BuffHandler;
+import me.pajic.smbs.system.SpawnSource;
 import me.pajic.smbs.util.MobExtension;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
@@ -39,7 +39,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
     @Unique private int smbs$maxBuffLevel = 0;
     @Unique private boolean smbs$shouldDropRewards = false;
     @Unique private final Mob smbs$thisMob = (Mob) (Object) this;
-    @Unique private Boolean smbs$fromSpawner = null;
+    @Unique private SpawnSource smbs$spawnSource = null;
     @Unique private boolean smbs$buffApplyAttempted = false;
     @Unique private boolean smbs$maxBuffLevelFinal = false;
 
@@ -52,7 +52,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("HEAD")
     )
     private void getSpawnReason(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnReason, SpawnGroupData groupData, CallbackInfoReturnable<SpawnGroupData> cir) {
-        smbs$fromSpawner = EntitySpawnReason.isSpawner(spawnReason);
+        smbs$spawnSource = SpawnSource.of(spawnReason);
     }
 
     /**
@@ -66,9 +66,9 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
             at = @At("HEAD")
     )
     private void applyBuffs(CallbackInfo ci) {
-        if (!level().isClientSide() && !smbs$buffApplyAttempted && smbs$fromSpawner != null) {
+        if (!level().isClientSide() && !smbs$buffApplyAttempted && smbs$spawnSource != null) {
             smbs$buffApplyAttempted = true;
-            if (SMBS.CONFIG.allowBuffedMobsFromSpawners.get() || !smbs$fromSpawner) {
+            if (BuffHandler.canBuff(smbs$spawnSource, (ServerLevel) level())) {
                 BuffHandler.applyBuffs(smbs$thisMob, (ServerLevel) level(), ((ServerLevel) level()).getCurrentDifficultyAt(smbs$thisMob.getOnPos()));
             }
         }
@@ -141,7 +141,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         compound.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
         compound.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
         compound.putBoolean("MaxBuffLevelFinal", smbs$maxBuffLevelFinal);
-        if (!smbs$buffApplyAttempted && smbs$fromSpawner != null) compound.putBoolean("FromSpawner", smbs$fromSpawner);
+        if (!smbs$buffApplyAttempted && smbs$spawnSource != null) compound.putString("SpawnSource", smbs$spawnSource.name());
     }
 
     @Inject(
@@ -154,7 +154,8 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
 		smbs$shouldDropRewards = compound.getBoolean("ShouldDropRewards");
 		smbs$buffApplyAttempted = compound.getBoolean("BuffApplyAttempted");
 		smbs$maxBuffLevelFinal = compound.getBoolean("MaxBuffLevelFinal");
-		if (compound.contains("FromSpawner")) smbs$fromSpawner = compound.getBoolean("FromSpawner");
+		if (compound.contains("SpawnSource")) smbs$spawnSource = SpawnSource.byName(compound.getString("SpawnSource"));
+		else if (compound.contains("FromSpawner")) smbs$spawnSource = compound.getBoolean("FromSpawner") ? SpawnSource.SPAWNER : SpawnSource.NATURAL;
     }
     *///?} else {
     @Inject(
@@ -167,7 +168,7 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         output.putBoolean("ShouldDropRewards", smbs$shouldDropRewards);
         output.putBoolean("BuffApplyAttempted", smbs$buffApplyAttempted);
         output.putBoolean("MaxBuffLevelFinal", smbs$maxBuffLevelFinal);
-        if (!smbs$buffApplyAttempted) output.storeNullable("FromSpawner", Codec.BOOL, smbs$fromSpawner);
+        if (!smbs$buffApplyAttempted && smbs$spawnSource != null) output.putString("SpawnSource", smbs$spawnSource.name());
     }
 
     @Inject(
@@ -180,7 +181,12 @@ public abstract class MobMixin extends LivingEntity implements MobExtension {
         smbs$shouldDropRewards = input.getBooleanOr("ShouldDropRewards", false);
         smbs$buffApplyAttempted = input.getBooleanOr("BuffApplyAttempted", true);
         smbs$maxBuffLevelFinal = input.getBooleanOr("MaxBuffLevelFinal", false);
-        input.read("FromSpawner", Codec.BOOL).ifPresent(fromSpawner -> smbs$fromSpawner = fromSpawner);
+        input.read("SpawnSource", Codec.STRING).ifPresentOrElse(
+                source -> smbs$spawnSource = SpawnSource.byName(source),
+                () -> input.read("FromSpawner", Codec.BOOL).ifPresent(
+                        fromSpawner -> smbs$spawnSource = fromSpawner ? SpawnSource.SPAWNER : SpawnSource.NATURAL
+                )
+        );
     }
     //?}
 }

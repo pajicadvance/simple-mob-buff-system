@@ -17,7 +17,7 @@ public class CatalystListenerMixin {
 
     @WrapMethod(method = "handleGameEvent")
     private boolean noSculkSpreadIfMobNotBuffed(ServerLevel level, Holder<GameEvent> event, GameEvent.Context context, Vec3 sourcePosition, Operation<Boolean> original) {
-        if (SMBS.CONFIG.onlyBuffedMobsSpreadSculk.get()) {
+        if (SMBS.CONFIG.misc.onlyBuffedMobsSpreadSculk.get()) {
             return context.sourceEntity() instanceof Mob mob && ((MobExtension) mob).smbs$getBuffLevel() > 0 ?
                     original.call(level, event, context, sourcePosition) : false;
         }
